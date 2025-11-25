@@ -75,7 +75,7 @@ public class Shell {
                         if (arg1 != null && arg2 == null) {
                             fs.changeDirectory(arg1);
                         } else {
-                            System.out.println("Use: 'cd <path>' or 'cd ..'");
+                            System.out.println("Use: 'cd <path>'");
                         }
                         break;
 

@@ -132,21 +132,34 @@ public class FileSystemSimulator {
         return s.toString();
     }
 
-    public void changeDirectory(String name) throws FSException {
-        if (name.equals("..")) {
-            if (currentDirectory.parent() == null)
-                return;
-            currentDirectory = currentDirectory.parent();
-            return;
+    public void changeDirectory(String path) throws FSException {
+        FSDirectory dir = currentDirectory;
+
+        if (path.equals("/")) {
+            dir = root;
+        } else if (path.equals("..")) {
+            dir = currentDirectory.parent();
+        } else {
+            String[] dirs = path.split("/");
+            for (int i = 0; i < dirs.length; i++) {
+                String name = dirs[i];
+                FSNode child = dir.getChildByName(name);
+
+                if (child != null) {
+                    if (child.getType() == "FILE") {
+                        throw new FSException(String.format("'%s' is not a directory.", child.name()));
+                    }
+                    dir = (FSDirectory) child;
+                    continue;
+                }
+            }
         }
 
-        FSNode node = currentDirectory.getChildByName(name);
-        if (node == null)
-            throw new FSException(String.format("File or directory '%s' not found.", name));
-        if (node instanceof FSFile)
-            throw new FSException(String.format("'%s' is not a directory.", name));
+        changeDirectory(dir);
+    }
 
-        currentDirectory = (FSDirectory) node;
+    private void changeDirectory(FSDirectory dir) {
+        currentDirectory = dir;
     }
 
     public void rename(String oldName, String newName) throws FSException {
